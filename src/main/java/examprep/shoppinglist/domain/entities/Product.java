@@ -1,0 +1,35 @@
+package examprep.shoppinglist.domain.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name="products")
+public class Product extends BaseEntity{
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
+
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    @Column(nullable = false)
+    private LocalDateTime neededBefore;
+
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    private Category category;
+}
