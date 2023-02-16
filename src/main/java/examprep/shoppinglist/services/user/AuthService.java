@@ -13,4 +13,6 @@ public interface AuthService {
 
     default void logoutUser() {
     }
+
+    boolean isAuthentic(String username, String password);
 }

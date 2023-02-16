@@ -2,6 +2,7 @@ package examprep.shoppinglist.services.product;
 
 import examprep.shoppinglist.domain.entities.Product;
 import examprep.shoppinglist.domain.enums.CategoryType;
+import examprep.shoppinglist.domain.models.ProductModel;
 import examprep.shoppinglist.repositories.CategoryRepository;
 import examprep.shoppinglist.repositories.ProductRepository;
 import examprep.shoppinglist.services.DatabaseInitialization;
@@ -23,15 +24,26 @@ public class ProductServiceImpl implements ProductService, DatabaseInitializatio
         this.categoryRepository = categoryRepository;
     }
 
+    @Override
+    public void addProduct(ProductModel productModel) {
+        this.productRepository.saveAndFlush(Product.builder()
+                        .name(productModel.getName())
+                        .price(productModel.getPrice())
+                        .description(productModel.getDescription())
+                        .neededBefore(productModel.getNeededBefore())
+                        .category(this.categoryRepository.findByName(CategoryType.valueOf(productModel.getCategory())))
+                .build());
+    }
+
     @PostConstruct
     @Override
     public void dbInit() {
-        if(!isDbInit()){
+        if (!isDbInit()) {
             this.productRepository.saveAndFlush(Product.builder()
                     .name("Верея 3.6")
                     .price(BigDecimal.valueOf(1.50))
-                    .category(this.categoryRepository.findByName(CategoryType.Food))
-                    .neededBefore(LocalDateTime.of(2023, 2,23,6,30))
+                    .category(this.categoryRepository.findByName(CategoryType.FOOD))
+                    .neededBefore(LocalDateTime.of(2023, 2, 23, 6, 30))
                     .description("Кисело мляко")
                     .build());
 
@@ -42,4 +54,6 @@ public class ProductServiceImpl implements ProductService, DatabaseInitializatio
     public boolean isDbInit() {
         return this.productRepository.count() > 0;
     }
+
+
 }

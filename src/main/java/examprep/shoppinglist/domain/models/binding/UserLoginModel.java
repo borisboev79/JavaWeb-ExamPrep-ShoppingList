@@ -1,7 +1,5 @@
 package examprep.shoppinglist.domain.models.binding;
 
-
-import examprep.shoppinglist.validations.validateLoginForm.ValidateLoginForm;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -11,14 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@ValidateLoginForm
+
 public class UserLoginModel {
 
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
     @NotNull
     private String username;
 
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 20, message = "Password must be between 3 and 20 characters")
     @NotNull
     private String password;
 

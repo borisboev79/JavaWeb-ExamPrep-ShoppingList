@@ -8,30 +8,37 @@ import examprep.shoppinglist.domain.models.binding.UserRegisterModel;
 import examprep.shoppinglist.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService{
     private final UserRepository userRepository;
-    private final ModelMapper mapper;
     private final LoggedUser loggedUser;
+    private final PasswordEncoder encoder;
 
     @Autowired
-    public AuthServiceImpl(UserRepository userRepository, ModelMapper mapper, LoggedUser loggedUser) {
+    public AuthServiceImpl(UserRepository userRepository, LoggedUser loggedUser, PasswordEncoder encoder) {
         this.userRepository = userRepository;
-
-        this.mapper = mapper;
         this.loggedUser = loggedUser;
+        this.encoder = encoder;
     }
 
     @Override
     public void registerUser(UserRegisterModel userRegisterModel) {
-        this.userRepository.saveAndFlush(this.mapper.map(userRegisterModel, User.class));
+        this.userRepository.saveAndFlush(User.builder()
+                .username(userRegisterModel.getUsername())
+                .password(encoder.encode(userRegisterModel.getPassword()))
+                .email(userRegisterModel.getEmail())
+                .build());
     }
 
     @Override
     public void loginUser(UserLoginModel userLoginModel) {
-        User user = this.userRepository.findByUsername(userLoginModel.getUsername()).get();
+        User user = this.userRepository.findByUsername(userLoginModel.getUsername()).orElse(new User());
 
         this.loggedUser.setId(user.getId());
     }
@@ -40,4 +47,13 @@ public class AuthServiceImpl implements AuthService{
     public void logoutUser() {
         this.loggedUser.clearUser();
     }
-}
+
+    @Override
+    public boolean isAuthentic(String username, String password) {
+        User user = this.userRepository.findByUsername(username).orElse(new User());
+        String encodedPassword = user.getPassword();
+
+            return encoder.matches(password, encodedPassword);
+        }
+    }
+

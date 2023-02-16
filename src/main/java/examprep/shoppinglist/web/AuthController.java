@@ -64,11 +64,16 @@ public class AuthController {
             return "redirect:login";
         }
 
-        this.authService.loginUser(userLoginModel);
+        if(this.authService.isAuthentic(userLoginModel.getUsername(), userLoginModel.getPassword())){
+            this.authService.loginUser(userLoginModel);
 
-        return "redirect:/home";
+            return "redirect:/home";
+        } else {
+            redirectAttributes.addFlashAttribute("userModel", userLoginModel);
+            redirectAttributes.addFlashAttribute("notFound", true);
 
-
+            return "redirect:login";
+        }
     }
 
     @GetMapping("/logout")
