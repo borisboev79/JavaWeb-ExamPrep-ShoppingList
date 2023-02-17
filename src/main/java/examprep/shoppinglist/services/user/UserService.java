@@ -1,8 +1,10 @@
 package examprep.shoppinglist.services.user;
 
 
-import examprep.shoppinglist.domain.models.UserModel;
+import examprep.shoppinglist.domain.entities.User;
+
+import java.util.Optional;
 
 public interface UserService {
-    UserModel findByUsername(String username);
+    Optional<User> findByUsername(String username);
 }

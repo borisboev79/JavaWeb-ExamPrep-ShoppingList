@@ -69,8 +69,8 @@ public class AuthController {
 
             return "redirect:/home";
         } else {
-            redirectAttributes.addFlashAttribute("userModel", userLoginModel);
-            redirectAttributes.addFlashAttribute("notFound", true);
+            redirectAttributes.addFlashAttribute("userLoginModel", userLoginModel);
+            redirectAttributes.addFlashAttribute("badCredentials", true);
 
             return "redirect:login";
         }
