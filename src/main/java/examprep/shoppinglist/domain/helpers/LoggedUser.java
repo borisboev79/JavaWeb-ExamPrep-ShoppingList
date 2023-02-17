@@ -9,6 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class LoggedUser {
     private Long id;
+    private String username;
 
     public boolean isEmpty(){
         return this.id == null;

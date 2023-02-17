@@ -1,58 +1,85 @@
 package examprep.shoppinglist.services.product;
 
+import examprep.shoppinglist.domain.entities.Category;
 import examprep.shoppinglist.domain.entities.Product;
+import examprep.shoppinglist.domain.entities.User;
 import examprep.shoppinglist.domain.enums.CategoryType;
-import examprep.shoppinglist.domain.models.ProductModel;
+import examprep.shoppinglist.domain.helpers.LoggedUser;
+import examprep.shoppinglist.domain.models.ProductAddModel;
+import examprep.shoppinglist.domain.models.ProductViewModel;
 import examprep.shoppinglist.repositories.CategoryRepository;
 import examprep.shoppinglist.repositories.ProductRepository;
-import examprep.shoppinglist.services.DatabaseInitialization;
-import jakarta.annotation.PostConstruct;
+import examprep.shoppinglist.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
-public class ProductServiceImpl implements ProductService, DatabaseInitialization {
+public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final LoggedUser loggedUser;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, UserRepository userRepository, LoggedUser loggedUser) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.loggedUser = loggedUser;
     }
 
     @Override
-    public void addProduct(ProductModel productModel) {
+    public void addProduct(ProductAddModel productAddModel) {
         this.productRepository.saveAndFlush(Product.builder()
-                        .name(productModel.getName())
-                        .price(productModel.getPrice())
-                        .description(productModel.getDescription())
-                        .neededBefore(productModel.getNeededBefore())
-                        .category(this.categoryRepository.findByName(CategoryType.valueOf(productModel.getCategory())))
+                .name(productAddModel.getName())
+                .price(productAddModel.getPrice())
+                .description(productAddModel.getDescription())
+                .neededBefore(productAddModel.getNeededBefore())
+                .category(this.categoryRepository.findByName(productAddModel.getCategory()))
+                .user(this.userRepository.findById(this.loggedUser.getId()).orElse(new User()))
                 .build());
     }
 
-    @PostConstruct
     @Override
-    public void dbInit() {
-        if (!isDbInit()) {
-            this.productRepository.saveAndFlush(Product.builder()
-                    .name("Верея 3.6")
-                    .price(BigDecimal.valueOf(1.50))
-                    .category(this.categoryRepository.findByName(CategoryType.FOOD))
-                    .neededBefore(LocalDateTime.of(2023, 2, 23, 6, 30))
-                    .description("Кисело мляко")
-                    .build());
+    public List<ProductViewModel> getProductsBySingleCategory(CategoryType categoryType) {
+        Category category = this.categoryRepository.findByName(categoryType);
 
-        }
+        return this.productRepository.findByCategoryAndUser_Id(category, loggedUser.getId())
+                .stream().map(product -> ProductViewModel.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .price(product.getPrice())
+                        .build())
+                .toList();
     }
 
     @Override
-    public boolean isDbInit() {
-        return this.productRepository.count() > 0;
+    public List<List<ProductViewModel>> getAllProductsByCategory() {
+
+        List<ProductViewModel> foods = getProductsBySingleCategory(CategoryType.FOOD);
+        List<ProductViewModel> drinks = getProductsBySingleCategory(CategoryType.DRINK);
+        List<ProductViewModel> household = getProductsBySingleCategory(CategoryType.HOUSEHOLD);
+        List<ProductViewModel> others = getProductsBySingleCategory(CategoryType.OTHER);
+
+
+        return new ArrayList<>(Arrays.asList(foods, drinks, household, others));
+    }
+
+    @Override
+    @Transactional
+    public void deleteProductById(Long id) {
+        this.productRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllProductsByUser(Long id) {
+        this.productRepository.deleteAllByUser_Id(id);
     }
 
 

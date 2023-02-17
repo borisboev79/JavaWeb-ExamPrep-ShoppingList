@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum CategoryType {
-    FOOD("Food"),
     DRINK("Drink"),
+    FOOD("Food"),
     HOUSEHOLD("Household"),
     OTHER("Other");
 

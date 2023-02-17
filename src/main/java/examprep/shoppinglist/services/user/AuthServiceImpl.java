@@ -6,13 +6,9 @@ import examprep.shoppinglist.domain.helpers.LoggedUser;
 import examprep.shoppinglist.domain.models.binding.UserLoginModel;
 import examprep.shoppinglist.domain.models.binding.UserRegisterModel;
 import examprep.shoppinglist.repositories.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -41,6 +37,7 @@ public class AuthServiceImpl implements AuthService{
         User user = this.userRepository.findByUsername(userLoginModel.getUsername()).orElse(new User());
 
         this.loggedUser.setId(user.getId());
+        this.loggedUser.setUsername(user.getUsername());
     }
 
     @Override

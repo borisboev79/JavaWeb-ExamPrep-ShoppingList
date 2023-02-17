@@ -32,4 +32,8 @@ public class Product extends BaseEntity{
     @ManyToOne
     @Fetch(FetchMode.JOIN)
     private Category category;
+
+    @ManyToOne
+    @Fetch(FetchMode.JOIN)
+    private User user;
 }

@@ -1,7 +1,6 @@
 package examprep.shoppinglist.web;
 
 import examprep.shoppinglist.domain.models.binding.UserLoginModel;
-
 import examprep.shoppinglist.domain.models.binding.UserRegisterModel;
 import examprep.shoppinglist.services.user.AuthService;
 import jakarta.validation.Valid;
@@ -20,7 +19,6 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
-
     }
 
     @GetMapping("/register")
@@ -91,4 +89,5 @@ public class AuthController {
     public UserLoginModel userLoginModel() {
         return new UserLoginModel();
     }
+
 }
